@@ -6,7 +6,7 @@ Meteor.publish('publicConnectionInfo', function publicConnectionInfo() {
   return Connections.find({});
 });
 
-let userIP = "";
+var connectionId = "";
 
 Meteor.startup(() => {
   // code to run on server at startup
@@ -34,16 +34,22 @@ Meteor.methods({
       //Error message: Wait for movement to complete
     }
 
+  },
+  connectionId: function(){
+    return connectionId;
   }
 });
 
 Meteor.onConnection(function(conn) {
-    //Check if this is a new or an existing connection
-    console.log("Existing connection?",Connections.find({conId : conn.id}).count());
-
-    Connections.insert({
-      'conId' : conn.id,
-      'ip': conn.clientAddress,
-      'loginTime': Date()
-    });
+    if(Connections.find({conId : conn.id}).count() == 0){
+      //New connection
+      Connections.insert({
+        'conId' : conn.id,
+        'ip': conn.clientAddress,
+        'loginTime': Date()
+      });
+      connectionId = conn.id;
+    }else{
+      //Existing connection
+    }
 });

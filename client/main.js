@@ -4,12 +4,24 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import './main.html';
 
 Meteor.subscribe("publicConnectionInfo");
-const Connections = new Mongo.Collection("connections");
 
-var countdown = new ReactiveCountdown(600);
+const Connections   = new Mongo.Collection("connections");
+var countdown       = new ReactiveCountdown(600);
+var myConnection  	= "";
 
 countdown.start(function() {
   console.log("finished countdown");
+});
+
+Template.main.helpers({
+  connection: function(){
+    myConnection = Meteor.call("connectionId");
+    console.log(myConnection);
+    return Connections.find({conId : myConnection});
+  },
+  status: function(){
+    return Meteor.status();
+  }
 });
 
 Template.timer.helpers({
@@ -31,10 +43,4 @@ Template.controls.events({
       }
     });
   }
-});
-
-UI.body.events({
-    'keypress': function (event) {
-      console.log(event.target); 
-    }
 });
