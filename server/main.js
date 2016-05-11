@@ -21,29 +21,26 @@ var connectionId = "";
 Meteor.startup(() => {
   //Update connections every 5 seconds
   Meteor.setInterval(function () {
-    //Deactivate finished sessions
-    Connections.update({timeRemaining: { $exists: true, $lte: 0}},{$set:{active: false,finished: true}});
+    //Deactivate finished active sessions
+    Connections.remove({timeRemaining: { $exists: true, $lte: 0},active:true});
 
-    //Find current session
-    let currentSession = Connections.findOne({$query:{finished: {$exists: false}},$orderby:{loginTime:-1}});
+    //Find current/next session
+    let currentSession = Connections.findOne({$query:{finished: {$exists: false}},$orderby:{loginTime:1}});
 
     if(currentSession){
       //Check if current session is active
       if(!currentSession.active){
         //No existing session
         //Activate a new session
-        console.log("Starting new session for conid:",currentSession.conId);
-        console.log("Time:",Options["sessionDuration"]);
         Connections.update({_id : currentSession._id},{
           $set: {
             active: true,
-            timeRemaining: Options["sessionDuration"]
+            timeRemaining: Options["sessionDuration"] + 5
           }
         });
       }else{
         //Existing session
         //Update countdown for current session
-        console.log("Decrementing remaining time for session",currentSession.conId);
         Connections.update({_id : currentSession._id},{
           $inc: { timeRemaining: -5 }
         });

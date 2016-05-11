@@ -9,18 +9,12 @@ Meteor.subscribe("publicConnectionInfo");
 const Connections   = new Mongo.Collection("connections");
 
 //Create a countdown timer
-var countdown       = new ReactiveCountdown(600);
-
-//Get current connectionId
-var myConnection ;
-
-countdown.start(function() {
-  console.log("finished countdown");
-});
+var countdownonnectionId
+var myConnection;
 
 Template.main.helpers({
   connection: function(){
-    let myConnection = ReactiveMethod.call("connectionId");
+    myConnection = ReactiveMethod.call("connectionId");
     return Connections.findOne({conId : myConnection});
   },
   status: function(){
@@ -29,6 +23,13 @@ Template.main.helpers({
   queued: function(){
     return Connections.find();
   }
+});
+
+Template.timer.onRendered(function(){
+  let conDetails = Connections.findOne({conId : myConnection});
+  console.log(conDetails.timeRemaining);
+  countdown = new ReactiveCountdown(conDetails.timeRemaining);
+  countdown.start();
 });
 
 Template.timer.helpers({

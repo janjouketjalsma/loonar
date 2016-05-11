@@ -36,11 +36,10 @@
 </body>
 
 <template name="main">
-  {{#if status.connected}}
     <nav>
       <div class="nav-wrapper">
         <div class="container">
-          <a href="#!" class="brand-logo">Library Rover (driver: {{#with connection}}{{conId}} {{timeRemaining}} {{active}}{{/with}})</a>
+          <a href="#!" class="brand-logo">Library Rover</a>
           <ul class="right hide-on-med-and-down">
             <li><a href="collapsible.html"><i class="material-icons">refresh</i></a></li>
             <li><a href="mobile.html"><i class="material-icons">more_vert</i></a></li>
@@ -49,27 +48,44 @@
       </div>
     </nav>
     <div class="container" style="padding-top:25px;">
-      {{#if connection.active}}
-        <div class="row">
-          <div class="col s8">
-            {{> camera}}
-          </div>
-          <div class="col s4">
-            {{> timer}}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col s8">
-            {{> controls}}
-          </div>
-        </div>
+      {{#if status.connected}}
+        {{#with connection}}
+          This is you: {{conId}}
+          {{#if active}}
+            <div class="row">
+              <div class="col s8">
+                {{> camera}}
+              </div>
+              <div class="col s4">
+                {{> timer}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s8">
+                {{> controls}}
+              </div>
+            </div>
+          {{else}}
+            <br/>
+            Waiting list:
+            {{#each queued}}
+              <div style="border:1px solid black;">
+                {{conId}}&nbsp;
+                {{#if timeRemaining}}
+                  {{timeRemaining}}
+                {{else}}
+                  20
+                {{/if}}
+              </div>
+            {{/each}}
+          {{/if}}
+        {{else}}
+          Finished! Refresh to wait for another turn
+        {{/with}}
       {{else}}
-        Wait a minute please
+        Status is not connected
       {{/if}}
     </div>
-  {{else}}
-    Connecting
-  {{/if}}
 </template>
 
 <template name="timer">
