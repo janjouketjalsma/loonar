@@ -5,9 +5,14 @@ import './main.html';
 
 Meteor.subscribe("publicConnectionInfo");
 
+//Define collections
 const Connections   = new Mongo.Collection("connections");
+
+//Create a countdown timer
 var countdown       = new ReactiveCountdown(600);
-var myConnection  	= "";
+
+//Get current connectionId
+var myConnection ;
 
 countdown.start(function() {
   console.log("finished countdown");
@@ -15,8 +20,7 @@ countdown.start(function() {
 
 Template.main.helpers({
   connection: function(){
-    myConnection = Meteor.call("connectionId");
-    console.log(myConnection);
+    let myConnection = ReactiveMethod.call("connectionId");
     return Connections.find({conId : myConnection});
   },
   status: function(){

@@ -20,3 +20,4 @@ ecmascript              # Enable ECMAScript2015+ syntax in app code
 materialize:materialize
 flyandi:reactive-countdown
 http
+simple:reactive-method
