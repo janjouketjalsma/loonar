@@ -21,10 +21,13 @@ countdown.start(function() {
 Template.main.helpers({
   connection: function(){
     let myConnection = ReactiveMethod.call("connectionId");
-    return Connections.find({conId : myConnection});
+    return Connections.findOne({conId : myConnection});
   },
   status: function(){
     return Meteor.status();
+  },
+  queued: function(){
+    return Connections.find();
   }
 });
 

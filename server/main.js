@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 //Define settings
 ROBOTIP = "192.168.43.2";
 const Options = {
-  sessionDuration:600
+  sessionDuration:20
 }
 
 //Create the connections collection
@@ -22,28 +22,29 @@ Meteor.startup(() => {
   //Update connections every 5 seconds
   Meteor.setInterval(function () {
     //Deactivate finished sessions
-    Connections.update({timeRemaining: { $exists: true, $lte: 0}},{active: false,finished: true});
+    Connections.update({timeRemaining: { $exists: true, $lte: 0}},{$set:{active: false,finished: true}});
 
     //Find current session
     let currentSession = Connections.findOne({$query:{finished: {$exists: false}},$orderby:{loginTime:-1}});
 
     if(currentSession){
       //Check if current session is active
-      if(Connections.find({active: true}).count() == 0){
+      if(!currentSession.active){
         //No existing session
         //Activate a new session
-        console.log("Starting new session");
+        console.log("Starting new session for conid:",currentSession.conId);
         console.log("Time:",Options["sessionDuration"]);
         Connections.update({_id : currentSession._id},{
-          active: true,
-          timeRemaining: Options["sessionDuration"]
+          $set: {
+            active: true,
+            timeRemaining: Options["sessionDuration"]
+          }
         });
       }else{
         //Existing session
         //Update countdown for current session
-        console.log("Decrementing remaining time for session",currentSession._id);
+        console.log("Decrementing remaining time for session",currentSession.conId);
         Connections.update({_id : currentSession._id},{
-          $set: { active: true},
           $inc: { timeRemaining: -5 }
         });
       }
@@ -57,14 +58,14 @@ Meteor.methods({
     let onlyLetters = /^[a-zA-Z]$/;
     let robotURL = "http://" + process.env.ROBOTIP + ":5000/loonar/api/v1.0";
 
-    //Override duraction on server side
-    options["duration"] = 50;
+    //Override speed on server side
+    options["speed"] = 50;
 
     if(!isMoving){
 
       //Validate parameters
-      if(options["direction"].match(/^[a-zA-Z]+$/) && !isNaN(options["duration"])){
-        return HTTP.call("GET", robotURL + "/" + options["direction"] + "/" + options["duration"],{
+      if(options["direction"].match(/^[a-zA-Z]+$/) && !isNaN(options["speed"])){
+        return HTTP.call("GET", robotURL + "/" + options["direction"] + "/" + options["speed"],{
           auth : "loonar:Authenticated"
         });
       }
